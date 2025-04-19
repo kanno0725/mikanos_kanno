@@ -1,12 +1,12 @@
-#include <Uefi.h>
-#include <Library/UefiLib.h>
-#include <Library/UefiBootServicesTableLib.h>
-#include <Library/PrintLib.h>
-#include <Protocol/LoadedImage.h>
-#include <Protocol/SimpleFileSystem.h>
-#include <Protocol/DiskIo2.h>
-#include <Protocol/BlockIo.h>
-#include <Guid/FileInfo.h>
+#include  <Uefi.h>
+#include  <Library/UefiLib.h>
+#include  <Library/UefiBootServicesTableLib.h>
+#include  <Library/PrintLib.h>
+#include  <Protocol/LoadedImage.h>
+#include  <Protocol/SimpleFileSystem.h>
+#include  <Protocol/DiskIo2.h>
+#include  <Protocol/BlockIo.h>
+#include  <Guid/FileInfo.h>
 
 struct MemoryMap {
   UINTN buffer_size;
@@ -26,7 +26,7 @@ EFI_STATUS GetMemoryMap(struct MemoryMap* map) {
   return gBS->GetMemoryMap(
     &map->map_size,
     (EFI_MEMORY_DESCRIPTOR*)map->buffer,
-    &map->map_key;
+    &map->map_key,
     &map->descriptor_size,
     &map->descriptor_version);
 }
@@ -40,8 +40,8 @@ const CHAR16* GetMemoryTypeUnicode(EFI_MEMORY_TYPE type) {
     case EfiBootServicesData: return L"EfiBootServicesData";
     case EfiRuntimeServicesCode: return L"EfiRuntimeServicesCode";
     case EfiRuntimeServicesData: return L"EfiRuntimeServicesData";
-    case EfiConventionalMemory: return L"EfiConventinalMemory";
-    case EfiUnusableMemory: return L"EfiUnsableMemory";
+    case EfiConventionalMemory: return L"EfiConventionalMemory";
+    case EfiUnusableMemory: return L"EfiUnusableMemory";
     case EfiACPIReclaimMemory: return L"EfiACPIReclaimMemory";
     case EfiACPIMemoryNVS: return L"EfiACPIMemoryNVS";
     case EfiMemoryMappedIO: return L"EfiMemoryMappedIO";
@@ -62,7 +62,7 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file) {
   len = AsciiStrLen(header);
   file->Write(file, &len, header);
 
-  Print(L"map->buffer = %081x, map->map_size = %081x\n",
+  Print(L"map->buffer = %08lx, map->map_size = %08lx\n",
       map->buffer, map->map_size);
 
   EFI_PHYSICAL_ADDRESS iter;
@@ -71,12 +71,12 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file) {
        iter < (EFI_PHYSICAL_ADDRESS)map->buffer + map->map_size;
        iter += map->descriptor_size, i++) {
     EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)iter;
-    len = AsciiPrint(
+    len = AsciiSPrint(
       buf, sizeof(buf),
-      "%u, %x, %-ls, %081x. %lx, %lx\n",
+      "%u, %x, %-ls, %08lx, %lx, %lx\n",
       i, desc->Type, GetMemoryTypeUnicode(desc->Type),
       desc->PhysicalStart, desc->NumberOfPages,
-      desc->Attrubute & 0xffffflu);
+      desc->Attribute & 0xffffflu);
     file->Write(file, &len, buf);
   }
 
@@ -121,7 +121,7 @@ EFI_STATUS EFIAPI UefiMain(
   OpenRootDir(image_handle, &root_dir);
 
   EFI_FILE_PROTOCOL* memmap_file;
-  root->Open(
+  root_dir->Open(
     root_dir, &memmap_file, L"\\memmap",
     EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
   
@@ -143,19 +143,19 @@ EFI_STATUS EFIAPI UefiMain(
     EFI_FILE_INFO* file_info = (EFI_FILE_INFO*)file_info_buffer;
     UINTN kernel_file_size = file_info->FileSize;
 
-    EFI_PHYSICAL_ADDRESS kernel_base_adddr = 0x100000;
+    EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
     gBS->AllocatePages(
       AllocateAddress, EfiLoaderData,
       (kernel_file_size + 0xfff) / 0x1000, &kernel_base_addr);
     kernel_file->Read(kernel_file, &kernel_file_size, (VOID*)kernel_base_addr);
-    Print(L"Kernel: 0x%01x (%lu bytes)\n", kernel_base_addr, kernel_file_size);
+    Print(L"Kernel: 0x%0lx (%lu bytes)\n", kernel_base_addr, kernel_file_size);
     // #@@range_end(read_kernel)
 
     // #@@range_begin(exit_bs)
     EFI_STATUS status;
-    status = gBS->EitBootServices(image_handle, memmap.map_key);
+    status = gBS->ExitBootServices(image_handle, memmap.map_key);
     if (EFI_ERROR(status)) {
-      status = GetMemory(&memmap);
+      status = GetMemoryMap(&memmap);
       if (EFI_ERROR(status)) {
         Print(L"failed to get memory map: %r\n", status);
         while (1);
