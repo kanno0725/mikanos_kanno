@@ -8,6 +8,7 @@
 #include  <Protocol/DiskIo2.h>
 #include  <Protocol/BlockIo.h>
 #include  <Guid/FileInfo.h>
+#include  "frame_buffer_config.hpp"
 
 struct MemoryMap {
   UINTN buffer_size;
@@ -170,11 +171,9 @@ const CHAR16* GetPixelFormatUnicode(EFI_GRAPHICS_PIXEL_FORMAT fmt) {
   }
 }
 
-// #@@range_begin(halt)
 void Halt(void) {
   while (1) __asm__("hlt");
 }
-// #@@range_end(halt)
 
 EFI_STATUS EFIAPI UefiMain(
     EFI_HANDLE image_handle,
@@ -218,7 +217,6 @@ EFI_STATUS EFIAPI UefiMain(
     }
   }
 
-  // #@@range_begin(gop)
   EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
   status = OpenGOP(image_handle, &gop);
   if (EFI_ERROR(status)) {
@@ -240,9 +238,7 @@ EFI_STATUS EFIAPI UefiMain(
   for (UINTN i = 0; i < gop->Mode->FrameBufferSize; ++i) {
     frame_buffer[i] = 255;
   }
-  // #@@range_end(gop)
 
-  // #@@range_begin(read_kernel)
   EFI_FILE_PROTOCOL* kernel_file;
   status = root_dir->Open(
     root_dir, &kernel_file, L"\\kernel.elf",
@@ -251,7 +247,6 @@ EFI_STATUS EFIAPI UefiMain(
     Print(L"failed to open file '\\kernel.elf': %r\n", status);
     Halt();
   }
-  // #@@range_end(read_kernel)
 
   UINTN file_info_size = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
   UINT8 file_info_buffer[file_info_size];
@@ -299,13 +294,32 @@ EFI_STATUS EFIAPI UefiMain(
   }
   // #@@range_end(exit_bs)
 
-  // #@@range_begin(call_kernel)
   UINT64 entry_addr = *(UINT64*)(kernel_base_addr + 24);
 
-  typedef void EntryPointType(UINT64, UINT64);
+  // #@@range_begin(pass_frame_buffer_config)
+  struct FrameBufferConfig config = {
+    (UINT8*)gop->Mode->FrameBufferBase,
+    gop->Mode->Info->PixelsPerScanLine,
+    gop->Mode->Info->HorizontalResolution,
+    gop->Mode->Info->VerticalResolution,
+    0
+  };
+  switch (gop->Mode->Info->PixelFormat) {
+    case PixelRedGreenBlueReserved8BitPerColor:
+      config.pixel_format = kPixelRGBResv8BitPerColor;
+      break;
+    case PixelBlueGreenRedReserved8BitPerColor:
+      config.pixel_format = kPixelBGRResv8BitPerColor;
+      break;
+    default:
+      Print(L"Unimplemented pixel format: %d\n", gop->Mode->Info->PixelFormat);
+      Halt();
+  }
+
+  typedef void EntryPointType(const struct FrameBufferConfig*);
   EntryPointType* entry_point = (EntryPointType*)entry_addr;
-  entry_point(gop->Mode->FrameBufferBase, gop->Mode->FrameBufferSize);
-  // #@@range_end(call_kernel)
+  entry_point(&config);
+  // #@@range_end(pass_frame_buffer_config)
 
   Print(L"All done\n");
 
