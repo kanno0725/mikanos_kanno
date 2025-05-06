@@ -1,0 +1,1 @@
+/home/kanno/workspace/mikanos_kanno/kernel/elf.hpp
