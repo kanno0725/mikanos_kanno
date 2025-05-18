@@ -3,22 +3,15 @@
 #include  <Library/UefiBootServicesTableLib.h>
 #include  <Library/PrintLib.h>
 #include  <Library/MemoryAllocationLib.h>
+#include  <Library/BaseMemoryLib.h>
 #include  <Protocol/LoadedImage.h>
 #include  <Protocol/SimpleFileSystem.h>
 #include  <Protocol/DiskIo2.h>
 #include  <Protocol/BlockIo.h>
 #include  <Guid/FileInfo.h>
 #include  "frame_buffer_config.hpp"
+#include  "memory_map.hpp"
 #include  "elf.hpp"
-
-struct MemoryMap {
-  UINTN buffer_size;
-  VOID* buffer;
-  UINTN map_size;
-  UINTN map_key;
-  UINTN descriptor_size;
-  UINT32 descriptor_version;
-};
 
 EFI_STATUS GetMemoryMap(struct MemoryMap* map) {
   if (map->buffer == NULL) {
@@ -176,7 +169,6 @@ void Halt(void) {
   while (1) __asm__("hlt");
 }
 
-// #@@range_begin(calc_addr_func)
 void CalcLoadAddressRange(Elf64_Ehdr* ehdr, UINT64* first, UINT64* last) {
   Elf64_Phdr* phdr = (Elf64_Phdr*)((UINT64)ehdr + ehdr->e_phoff);
   *first = MAX_UINT64;
@@ -334,9 +326,7 @@ EFI_STATUS EFIAPI UefiMain(
     }
   }
 
-  // #@@range_begin(get_entry_point)
   UINT64 entry_addr = *(UINT64*)(kernel_first_addr + 24);
-  // #@@range_end(get_entry_point)
 
   struct FrameBufferConfig config = {
     (UINT8*)gop->Mode->FrameBufferBase,
@@ -357,9 +347,10 @@ EFI_STATUS EFIAPI UefiMain(
       Halt();
   }
 
-  typedef void EntryPointType(const struct FrameBufferConfig*);
+  typedef void EntryPointType(const struct FrameBufferConfig*,
+                              const struct MemoryMap*);
   EntryPointType* entry_point = (EntryPointType*)entry_addr;
-  entry_point(&config);
+  entry_point(&config, &memmap);
 
   Print(L"All done\n");
 
