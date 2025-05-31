@@ -4,7 +4,6 @@
 * 画像描画関連のプログラムを集めたファイル．
 */
 
-// #@@range_begin(pixel_writer_impl)
 #include "graphics.hpp"
 
 void RGBResv8BitPerColorPixelWriter::Write(int x, int y, const PixelColor& c) {
@@ -40,4 +39,25 @@ void FillRectangle(PixelWriter& writer, const Vector2D<int>& pos,
       writer.Write(pos.x + dx, pos.y + dy, c);
     }
   }
+}
+
+void DrawDesktop(PixelWriter& writer) {
+  const auto width = writer.Width();
+  const auto height = writer.Height();
+  FillRectangle(writer,
+                {0, 0},
+                {width, height - 50},
+                kDesktopBGColor);
+  FillRectangle(writer,
+                {0, height - 50},
+                {width, 50},
+                {1, 8, 17});
+  FillRectangle(writer,
+                {0, height - 50},
+                {width / 5, 50},
+                {80, 80, 80});
+  DrawRectangle(writer,
+                {10, height - 40},
+                {30, 30},
+                {160, 160, 160});
 }

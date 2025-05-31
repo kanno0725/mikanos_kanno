@@ -6,14 +6,15 @@ class Console {
   public:
     static const int kRows = 25, kColumns = 80;
 
-    Console(PixelWriter& writer,
-        const PixelColor& fg_color, const PixelColor& bg_color);
+    Console(const PixelColor& fg_color, const PixelColor& bg_color);
     void PutString(const char* s);
+    void SetWriter(PixelWriter* writer);
 
   private:
     void Newline();
+    void Refresh();
 
-    PixelWriter& writer_;
+    PixelWriter* writer_;
     const PixelColor fg_color_, bg_color_;
     // 行末にヌル文字('\0')を書くためkColumnsに1足す
     char buffer_[kRows][kColumns + 1];
