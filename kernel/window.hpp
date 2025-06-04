@@ -69,7 +69,7 @@
    * @param dst_pos   移動先の原点
    */
   void Move(Vector2D<int> dst_pos, const Rectangle<int>& src);
-  
+
   private:
    int width_, height_;
    std::vector<std::vector<PixelColor>> data_{};
@@ -79,3 +79,4 @@
    FrameBuffer shadow_buffer_{};
  };
  
+ void DrawWindow(PixelWriter& writer, const char* title);
