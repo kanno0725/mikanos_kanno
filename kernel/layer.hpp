@@ -59,7 +59,7 @@ class LayerManager {
   /** @brief 現在表示状態にあるレイヤーを描画する。 */
   void Draw(const Rectangle<int>& area) const;
   /** @brief 指定したレイヤーに設定されているウィンドウの描画領域内を再描画する。 */
-  void Draw(unsigned int id) const;
+  void Draw(unsigned int id) const; // ←const 関数内でメンバ変数を変更できないようにする
  
    /** @brief レイヤーの位置情報を指定された絶対座標へと更新する。再描画はしない。 */
    void Move(unsigned int id, Vector2D<int> new_pos);
@@ -78,6 +78,7 @@ class LayerManager {
  
   private:
    FrameBuffer* screen_{nullptr};
+   mutable FrameBuffer back_buffer_{};
    std::vector<std::unique_ptr<Layer>> layers_{};
    std::vector<Layer*> layer_stack_{};
    unsigned int latest_id_{0};
