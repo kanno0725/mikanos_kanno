@@ -1,5 +1,6 @@
 #include "usb/xhci/xhci.hpp"
 
+#include <cstring>
 #include "logger.hpp"
 #include "usb/setupdata.hpp"
 #include "usb/device.hpp"
@@ -66,7 +67,7 @@ namespace {
     }
 
     int msb_index;
-    asm("bsr %1, %0"
+    __asm__("bsr %1, %0"
         : "=r"(msb_index) : "m"(value));
     return msb_index;
   }

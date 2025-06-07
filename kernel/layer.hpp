@@ -75,6 +75,9 @@ class LayerManager {
    void UpDown(unsigned int id, int new_height);
    /** @brief レイヤーを非表示とする。 */
    void Hide(unsigned int id);
+
+   /** @brief 指定された座標にウィンドウを持つ最も上に表示されているレイヤーを探す。 */
+   Layer* FindLayerByPosition(Vector2D<int> pos, unsigned int exclude_id) const;
  
   private:
    FrameBuffer* screen_{nullptr};
