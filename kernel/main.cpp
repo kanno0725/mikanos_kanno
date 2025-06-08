@@ -31,6 +31,7 @@
 #include "layer.hpp"
 #include "message.hpp"
 #include "timer.hpp"
+#include "acpi.hpp"
 
 int printk(const char* format, ...) {
   va_list ap;
