@@ -67,7 +67,8 @@ alignas(16) uint8_t kernel_main_stack[1024 * 1024];
 
 extern "C" void KernelMainNewStack(
     const FrameBufferConfig& frame_buffer_config_ref,
-    const MemoryMap& memory_map_ref) {
+    const MemoryMap& memory_map_ref,
+    const acpi::RSDP& acpi_table) {
   MemoryMap memory_map{memory_map_ref};
 
   InitializeGraphics(frame_buffer_config_ref);
@@ -90,6 +91,7 @@ extern "C" void KernelMainNewStack(
   InitializeMouse();
   layer_manager->Draw({{0, 0}, ScreenSize()});
 
+  acpi::Initialize(acpi_table);
   InitializeLAPICTimer(*main_queue);
 
   timer_manager->AddTimer(Timer(200, 2));
