@@ -5,6 +5,9 @@
  */
 
  #include "interrupt.hpp"
+ 
+ #include "asmfunc.h"
+ #include "segment.hpp"
 
  // IDT(割り込み記述子テーブル)の定義
  std::array<InterruptDescriptor, 256> idt;
@@ -25,4 +28,24 @@ void NotifyEndOfInterrupt() {
   // 書き込むことに意味があるため、読みだされていないがコンパイル時に省略されないよう、volatileとする
   volatile auto end_of_interrupt = reinterpret_cast<uint32_t*>(0xfee000b0);
   *end_of_interrupt = 0;
+}
+
+namespace {
+  std::deque<Message>* msg_queue;
+  // CPUアーキテクチャに依存した割り込みハンドラの前処理と後処理を挿入している
+  __attribute__((interrupt))
+  void IntHandlerXHCI(InterruptFrame* frame) {
+    msg_queue->push_back(Message{Message::kInterruptXHCI});
+    NotifyEndOfInterrupt();
+  }
+}
+
+void InitializeInterrupt(std::deque<Message>* msg_queue) {
+  ::msg_queue = msg_queue;
+
+  SetIDTEntry(idt[InterruptVector::kXHCI],
+              MakeIDTAttr(DescriptorType::kInterruptGate, 0),
+              reinterpret_cast<uint64_t>(IntHandlerXHCI),
+              kKernelCS);
+  LoadIDT(sizeof(idt) - 1, reinterpret_cast<uintptr_t>(&idt[0]));
 }
