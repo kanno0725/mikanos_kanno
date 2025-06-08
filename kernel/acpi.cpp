@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <cstdlib>
+#include "asmfunc.h"
 #include "logger.hpp"
 
 namespace {
@@ -66,6 +67,22 @@ namespace acpi {
   }
 
   const FADT* fadt;
+
+  void WaitMilliseconds(unsigned long msec) {
+    // acpi pmタイマーが32ビットの場合、真、24ビットの場合、偽となる
+    const bool pm_timer_32 = (fadt->flags >> 8) & 1;
+    const uint32_t start = IoIn32(fadt->pm_tmr_blk);
+    uint32_t end = start + kPMTimerFreq * msec / 1000;
+    if (!pm_timer_32) {
+      end &= 0x00ffffffu;
+    }
+  
+    // endがオーバーフローした場合
+    if (end < start) { // overflow
+      while (IoIn32(fadt->pm_tmr_blk) >= start);
+    }
+    while (IoIn32(fadt->pm_tmr_blk) < end);
+  }
 
   void Initialize(const RSDP& rsdp) {
     if (!rsdp.IsValid()) {
