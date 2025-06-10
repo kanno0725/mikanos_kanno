@@ -45,7 +45,7 @@ class TimerManager {
  extern unsigned long lapic_timer_freq;
  const int kTimerFreq = 100;
 
- const int kTaskTimerPeriod = static_cast<int>(kTimerFreq * 0.02);
+ const int kTaskTimerPeriod = static_cast<int>(kTimerFreq * 1.0);
  const int kTaskTimerValue = std::numeric_limits<int>::min();
 
  void LAPICTimerOnInterrupt();
