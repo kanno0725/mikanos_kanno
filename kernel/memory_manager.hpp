@@ -26,6 +26,7 @@ namespace {
   }
 }
 
+/** @brief 物理メモリフレーム 1 つの大きさ（バイト） */
 static const auto kBytesPerFrame{4_KiB};
 
 class FrameID {
@@ -86,4 +87,5 @@ class BitmapMemoryManager {
    void SetBit(FrameID frame, bool allocated);
  };
  
+ extern BitmapMemoryManager* memory_manager;
  void InitializeMemoryManager(const MemoryMap& memory_map);
