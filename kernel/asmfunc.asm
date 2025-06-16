@@ -13,7 +13,7 @@ IoOut32:
     out dx, eax
     ret
   
-global IoIn32   ; uint32_t IoIn32(uint16_t addr);
+global IoIn32  ; uint32_t IoIn32(uint16_t addr);
 IoIn32:
     mov dx, di    ; dx = addr
     in eax, dx
@@ -167,3 +167,14 @@ SwitchContext:  ; void SwitchContext(void* next_ctx, void* current_ctx);
     mov rdi, [rdi + 0x60]
 
     o64 iret
+
+global CallApp
+CallApp:  ; void CallApp(int argc, char** argv, uint16_t cs, uint16_t ss, uint64_t rip, uint64_t rsp);
+    push rbp
+    mov rbp, rsp
+    push rcx  ; SS
+    push r9   ; RSP
+    push rdx  ; CS
+    push r8   ; RIP
+    o64 retf
+    ; アプリケーションが終了してもここには来ない
