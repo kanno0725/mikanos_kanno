@@ -72,5 +72,4 @@ struct InterruptFrame {
 };
 
 void NotifyEndOfInterrupt();
-
 void InitializeInterrupt();
