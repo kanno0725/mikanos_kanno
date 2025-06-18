@@ -8,6 +8,7 @@
 
  #include <deque>
  #include <map>
+ #include <optional>
  #include "window.hpp"
  #include "task.hpp"
  #include "layer.hpp"
