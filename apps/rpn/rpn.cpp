@@ -1,6 +1,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include "../syscall.h"
 
 int stack_ptr;
 long stack[100];
