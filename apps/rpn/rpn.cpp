@@ -17,8 +17,6 @@ void Push(long value) {
   stack[stack_ptr] = value;
 }
 
-extern "C" void SyscallExit(int exit_code);
-
 extern "C" void main(int argc, char** argv) {
   stack_ptr = -1;
 
