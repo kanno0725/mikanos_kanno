@@ -36,7 +36,7 @@ caddr_t sbrk(int incr) {
 }
 
 ssize_t write(int fd, const void* buf, size_t count) {
-  struct SyscallResult res = SyscallPutString(fd, (uint64_t)buf, count);
+  struct SyscallResult res = SyscallPutString(fd, buf, count);
   if (res.error == 0) {
     return res.value;
   }
