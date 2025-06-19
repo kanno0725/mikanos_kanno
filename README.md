@@ -31,4 +31,7 @@ source $HOME/osbook/devenv/buildenv.sh
 # build
 cd $HOME/workspace/mikanos_kanno/kernel
 make
+
+# build day18b onwards
+./build.sh run
 ```
