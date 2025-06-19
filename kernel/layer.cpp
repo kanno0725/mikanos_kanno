@@ -4,6 +4,14 @@
 #include "console.hpp"
 #include "logger.hpp"
 
+namespace {
+  template <class T, class U>
+  void EraseIf(T& c, const U& pred) {
+    auto it = std::remove_if(c.begin(), c.end(), pred);
+    c.erase(it, c.end());
+  }
+} // namespace
+
 Layer::Layer(unsigned int id) : id_{id} {
 }
 
@@ -62,6 +70,15 @@ Layer& LayerManager::NewLayer() {
   ++latest_id_;
   // emplace_back 配列末尾に要素を追加する
   return *layers_.emplace_back(new Layer{latest_id_});
+}
+
+void LayerManager::RemoveLayer(unsigned int id) {
+  Hide(id);
+
+  auto pred = [id](const std::unique_ptr<Layer>& elem) {
+    return elem->ID() == id;
+  };
+  EraseIf(layers_, pred);
 }
 
 void LayerManager::Draw(const Rectangle<int>& area) const {
