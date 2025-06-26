@@ -33,6 +33,8 @@ class Error {
       kInvalidFormat,
       kFrameTooSmall,
       kInvalidFile,
+      kIsDirectory,
+      kNoSuchEntry,
       kLastOfCode,  // この列挙子は常に最後に配置する
     };
 
@@ -64,6 +66,8 @@ class Error {
       "kNotExecutable",
       "kInvalidFormat",
       "kFrameTooSmall",
+      "kInvalidFile",
+      "kIsDirectory",
       "kInvalidFile",
     };
     static_assert(Error::Code::kLastOfCode == code_names_.size());
