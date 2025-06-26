@@ -326,6 +326,7 @@ SYSCALL(OpenFile) {
   __asm__("sti");
 
   if (strcmp(path, "@stdin") == 0) {
+    // 標準入力なので、ファイルディスクリプタは0
     return { 0, 0 };
   }
   
