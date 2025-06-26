@@ -9,6 +9,8 @@
  #include <cstdint>
  #include <cstddef>
  
+#include "file.hpp"
+
  namespace fat {
  
  struct BPB {
@@ -87,12 +89,10 @@
   * @param cluster  クラスタ番号（2 始まり）
   * @return クラスタの先頭セクタが置いてあるメモリ領域へのポインタ
   */
- // #@@range_begin(get_sector)
  template <class T>
  T* GetSectorByCluster(unsigned long cluster) {
    return reinterpret_cast<T*>(GetClusterAddr(cluster));
  }
- // #@@range_end(get_sector)
  
  /** @brief ディレクトリエントリの短名を基本名と拡張子名に分割して取得する。
   * パディングされた空白文字（0x20）は取り除かれ，ヌル終端される。
@@ -111,9 +111,7 @@
   */
   void FormatName(const DirectoryEntry& entry, char* dest);
 
- // #@@range_begin(eoc)
  static const unsigned long kEndOfClusterchain = 0x0ffffffflu;
- // #@@range_end(eoc)
 
  /** @brief 指定されたクラスタの次のクラスタ番号を返す。
   *
@@ -145,10 +143,10 @@
   */
   size_t LoadFile(void* buf, size_t len, const DirectoryEntry& entry);
 
-  class FileDescriptor {
+ class FileDescriptor : public ::FileDescriptor {
   public:
     explicit FileDescriptor(DirectoryEntry& fat_entry);
-    size_t Read(void* buf, size_t len);
+    size_t Read(void* buf, size_t len) override;
 
   private:
     DirectoryEntry& fat_entry_;
