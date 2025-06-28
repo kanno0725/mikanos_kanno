@@ -157,13 +157,15 @@ extern "C" void KernelMainNewStack(
 
   InitializeTask();
   Task& main_task = task_manager->CurrentTask();
-  task_manager->NewTask()
-    .InitContext(TaskTerminal, 0)
-    .Wakeup();
 
   usb::xhci::Initialize();
   InitializeKeyboard();
   InitializeMouse();
+
+  app_loads = new std::map<fat::DirectoryEntry*, AppLoadInfo>;
+  task_manager->NewTask()
+    .InitContext(TaskTerminal, 0)
+    .Wakeup();
 
   char str[128];
 
