@@ -377,7 +377,7 @@ EFI_STATUS EFIAPI UefiMain(
       Print(L"failed to read volume file: %r", status);
       Halt();
     }
-  // fat_diskファイルがなければ、起動メディア(ブロックデバイス)の先頭16MiBを読み込む
+  // fat_diskファイルがなければ、起動メディア(ブロックデバイス)の先頭32MiBを読み込む
   } else {
     EFI_BLOCK_IO_PROTOCOL* block_io;
     status = OpenBlockIoProtocolForLoadedImage(image_handle, &block_io);
@@ -388,8 +388,8 @@ EFI_STATUS EFIAPI UefiMain(
 
     EFI_BLOCK_IO_MEDIA* media = block_io->Media;
     UINTN volume_bytes = (UINTN)media->BlockSize * (media->LastBlock + 1);
-    if (volume_bytes > 16 * 1024 * 1024) {
-      volume_bytes = 16 * 1024 * 1024;
+    if (volume_bytes > 32 * 1024 * 1024) {
+      volume_bytes = 32 * 1024 * 1024;
     }
 
     Print(L"Reading %lu bytes (Present %d, BlockSize %u, LastBlock %u)\n",

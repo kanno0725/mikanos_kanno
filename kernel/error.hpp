@@ -35,6 +35,7 @@ class Error {
       kInvalidFile,
       kIsDirectory,
       kNoSuchEntry,
+      kFreeTypeError,
       kLastOfCode,  // この列挙子は常に最後に配置する
     };
 
@@ -68,6 +69,7 @@ class Error {
       "kFrameTooSmall",
       "kInvalidFile",
       "kIsDirectory",
+      "kFreeTypeError",
       "kInvalidFile",
     };
     static_assert(Error::Code::kLastOfCode == code_names_.size());

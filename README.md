@@ -34,4 +34,7 @@ make
 
 # build day18b onwards
 ./build.sh run
+
+# build day27a onwards
+APPS_DIR=apps RESOURCE_DIR=resource ./build.sh run
 ```
