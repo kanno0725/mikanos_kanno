@@ -50,7 +50,8 @@ extern std::map<fat::DirectoryEntry*, AppLoadInfo>* app_loads;
    void Scroll1();
 
    void ExecuteLine();
-   Error ExecuteFile(fat::DirectoryEntry& file_entry, char* command, char* first_arg);
+    WithError<int> ExecuteFile(fat::DirectoryEntry& file_entry,
+                              char* command, char* first_arg);
    void Print(char32_t c);
 
    std::deque<std::array<char, kLineMax>> cmd_history_{};
@@ -60,6 +61,7 @@ extern std::map<fat::DirectoryEntry*, AppLoadInfo>* app_loads;
     bool show_window_;
     // 標準入出力のファイルの情報を持たせる
     std::array<std::shared_ptr<FileDescriptor>, 3> files_;
+    int last_exit_code_{0};
  };
  
  void TaskTerminal(uint64_t task_id, int64_t data);
