@@ -206,6 +206,10 @@ Error TaskManager::SendMessage(uint64_t id, const Message& msg) {
   return MAKE_ERROR(Error::kSuccess);
 }
 
+Task& TaskManager::CurrentTask() {
+  return *running_[current_level_].front();
+}
+
 void TaskManager::Finish(int exit_code) {
   Task* current_task = RotateCurrentRunQueue(true);
 
@@ -238,10 +242,6 @@ WithError<int> TaskManager::WaitFinish(uint64_t task_id) {
     Sleep(current_task);
   }
   return { exit_code, MAKE_ERROR(Error::kSuccess) };
-}
-
-Task& TaskManager::CurrentTask() {
-  return *running_[current_level_].front();
 }
 
 void TaskManager::ChangeLevelRunning(Task* task, int level) {

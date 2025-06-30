@@ -69,8 +69,8 @@ class Error {
       "kFrameTooSmall",
       "kInvalidFile",
       "kIsDirectory",
+      "kNoSuchEntry",
       "kFreeTypeError",
-      "kInvalidFile",
     };
     static_assert(Error::Code::kLastOfCode == code_names_.size());
   

@@ -12,7 +12,7 @@
 namespace {
   using namespace pci;
 
-  /** @brief CONFIG_ADDRESS 用の32ビット整数を生成する */
+  /** @brief CONFIG_ADDRESS 用の 32 ビット整数を生成する */
   uint32_t MakeAddress(uint8_t bus, uint8_t device,
                       uint8_t function, uint8_t reg_addr) {
     // ラムダ式
@@ -20,13 +20,14 @@ namespace {
       return x << bits;
     };
 
-    return shl(1, 31) // enable bit
+    return shl(1, 31)  // enable bit
       | shl(bus, 16)
       | shl(device, 11)
       | shl(function, 8)
       | (reg_addr & 0xfcu);
   }
 
+  /** @brief devices[num_device] に情報を書き込み num_device をインクリメントする． */
   Error AddDevice(const Device& device) {
     if (num_device == devices.size()) {
       return MAKE_ERROR(Error::kFull);
@@ -59,6 +60,7 @@ namespace {
 
     return MAKE_ERROR(Error::kSuccess);
   }
+
   /** @brief 指定のデバイス番号の各ファンクションをスキャンする．
    * 有効なファンクションを見つけたら ScanFunction を実行する．
    */
@@ -85,7 +87,7 @@ namespace {
    * 有効なデバイスを見つけたら ScanDevice を実行する．
    */
   Error ScanBus(uint8_t bus) {
-    for (uint8_t device = 0;  device < 32; ++device) {
+    for (uint8_t device = 0; device < 32; ++device) {
       if (ReadVendorId(bus, device, 0) == 0xffffu) {
         continue;
       }

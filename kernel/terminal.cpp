@@ -575,7 +575,7 @@ WithError<int> Terminal::ExecuteFile(fat::DirectoryEntry& file_entry,
   }
 
   const int stack_size = 8 * 4096;
-  LinearAddress4Level stack_frame_addr{0xffff'ffff'ffff'e000 - stack_size};
+  LinearAddress4Level stack_frame_addr{0xffff'ffff'ffff'f000 - stack_size};
   if (auto err = SetupPageMaps(stack_frame_addr, stack_size / 4096)) {
     Print(err.Name());
     return { 0, err };
@@ -591,7 +591,7 @@ WithError<int> Terminal::ExecuteFile(fat::DirectoryEntry& file_entry,
   task.SetDPagingBegin(elf_next_page);
   task.SetDPagingEnd(elf_next_page);
 
-  task.SetFileMapEnd(0xffff'ffff'ffff'e000);
+  task.SetFileMapEnd(stack_frame_addr.value);
 
   int ret = CallApp(argc.value, argv, 3 << 3 | 3, app_load.entry,
                     stack_frame_addr.value + stack_size - 8,
@@ -731,7 +731,6 @@ void TaskTerminal(uint64_t task_id, int64_t data) {
     delete term_desc;
     __asm__("cli");
     task_manager->Finish(terminal->LastExitCode());
-    __asm__("sti");
   }
 
   auto add_blink_timer = [task_id](unsigned long t){

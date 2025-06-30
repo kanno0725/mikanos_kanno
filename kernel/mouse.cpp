@@ -55,14 +55,8 @@ namespace {
 
   void SendMouseMessage(Vector2D<int> newpos, Vector2D<int> posdiff,
                         uint8_t buttons, uint8_t previous_buttons) {
-    const auto act = active_layer->GetActive();
-    if (!act) {
-      return;
-    }
-    const auto layer = layer_manager->FindLayer(act);
-
-    const auto task_it = layer_task_map->find(act);
-    if (task_it == layer_task_map->end()) {
+    const auto [ layer, task_id ] = FindActiveLayerTask();
+    if (!layer || !task_id) {
       return;
     }
 
@@ -74,8 +68,9 @@ namespace {
       msg.arg.mouse_move.dx = posdiff.x;
       msg.arg.mouse_move.dy = posdiff.y;
       msg.arg.mouse_move.buttons = buttons;
-      task_manager->SendMessage(task_it->second, msg);
+      task_manager->SendMessage(task_id, msg);
     }
+
     if (previous_buttons != buttons) {
       const auto diff = previous_buttons ^ buttons;
       for (int i = 0; i < 8; ++i) {
@@ -85,7 +80,7 @@ namespace {
           msg.arg.mouse_button.y = relpos.y;
           msg.arg.mouse_button.press = (buttons >> i) & 1;
           msg.arg.mouse_button.button = i;
-          task_manager->SendMessage(task_it->second, msg);
+          task_manager->SendMessage(task_id, msg);
         }
       }
     }

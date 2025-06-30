@@ -79,7 +79,6 @@ void SetupSegments() {
   // ユーザーモードのセグメントディスクリプタ
   SetDataSegment(gdt[3], DescriptorType::kReadWrite, 3, 0, 0xfffff);
   SetCodeSegment(gdt[4], DescriptorType::kExecuteRead, 3, 0, 0xfffff);
-
   LoadGDT(sizeof(gdt) - 1, reinterpret_cast<uintptr_t>(&gdt[0]));
 }
 
